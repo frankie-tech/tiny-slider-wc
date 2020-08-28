@@ -80,19 +80,19 @@ customElements.define(
 		}
 
 		static get styleHTML() {
-			return `
+			return html`
 				<style>
-				${styles.autoWidth()}
-				${styles.slider()}
-				${styles.noCalc()}
-				${styles.lazyLoad()}
-				${styles.horizontal()}
-				${styles.utils()}
-				${styles.fade()}
-				${styles.viewport()}
-				${styles.responsive()}
+					${styles.autoWidth()}
+					${styles.slider()}
+					${styles.noCalc()}
+					${styles.lazyLoad()}
+					${styles.horizontal()}
+					${styles.utils()}
+					${styles.fade()}
+					${styles.viewport()}
+					${styles.responsive()}
 				</style>
-			`.trim();
+			`;
 		}
 
 		static get styles() {
