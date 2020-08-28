@@ -1,14 +1,14 @@
 {
-	"name": "simple-package",
+	"name": "tiny-slider-wc",
 	"version": "1.0.0",
-	"description": "Template repo for building simple packages",
-	"main": "dist/simple.js",
-	"module": "dist/simple.modern.js",
-	"source": "src/index.ts",
+	"description": "tiny-slider carousel as a custom element/web component",
+	"main": "dist/tiny-slider-wc.js",
+	"module": "dist/tiny-slider-wc.modern.js",
+	"source": "src/index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"build": "microbundle -f modern,umd",
-		"dev": "microbundle watch --compress=false -f modern,umd --raw=true --no-sourcemap",
+		"dev": "microbundle watch --compress=false -f modern,umd --raw=true",
 		"clean:dist": "rm -rf dist",
 		"start": "npm-run-all clean:dist dev",
 		"pack": "npm-run-all clean:dist build"
@@ -24,6 +24,8 @@
 	},
 	"license": "MIT",
 	"devDependencies": {
+		"@webcomponents/shadycss": "^1.10.1",
+		"html-element-plus": "^1.1.0",
 		"husky": "^4.2.5",
 		"microbundle": "^0.12.3",
 		"npm-run-all": "^4.1.5",

@@ -997,6 +997,11 @@
   dependencies:
     "@types/node" "*"
 
+"@webcomponents/shadycss@^1.10.1":
+  version "1.10.1"
+  resolved "https://registry.yarnpkg.com/@webcomponents/shadycss/-/shadycss-1.10.1.tgz#6f377b313c96a93a690f25206b32a20eada4b2a9"
+  integrity sha512-XEVDA7oH6o4Au9apyRDucjcIzvP44Ur4sqTMGRKCcE6sCAeKiOkRE03TCYNJAFkzckMWWT8Xx3IxG3iwjAcsRQ==
+
 acorn@^7.1.0:
   version "7.4.0"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-7.4.0.tgz#e1ad486e6c54501634c6c397c5c121daa383607c"
@@ -1870,6 +1875,11 @@ html-comment-regex@^1.1.0:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/html-comment-regex/-/html-comment-regex-1.1.2.tgz#97d4688aeb5c81886a364faa0cad1dda14d433a7"
   integrity sha512-P+M65QY2JQ5Y0G9KKdlDpo0zK+/OHptU5AaBwUfAIDJZk1MYf32Frm84EcOytfJE0t5JvkAnKlmjsXDnWzCJmQ==
+
+html-element-plus@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/html-element-plus/-/html-element-plus-1.1.0.tgz#e3da399a02ddc9363aadf1f4438d9adefb414423"
+  integrity sha512-uMMsq0NI6MPMPddjx9NFXOL7E0MOe7ETZXr0hik22kPKqfuUKyI3jYE+E9dJsj7MZh0BCODy3AQlDejNiQoAcw==
 
 husky@^4.2.5:
   version "4.2.5"
