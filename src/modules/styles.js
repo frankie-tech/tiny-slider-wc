@@ -17,15 +17,18 @@ const outer = () =>
 
 const slider = () =>
 	t(`
-[ref="tnsSlider"] {
+:host([ref="tnsSlider"]) {
 	-webkit-transition: all 0s;
 	-moz-transition: all 0s;
 	transition: all 0s;
 }
-[ref="tnsSlider"] > ::slotted([slot='tns-slides']) {
+:host([ref="tnsSlider"]) > ::slotted([slot='tns-slides']) {
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
+}
+:host([ref="tnsSlider"]) ::slotted([slot="tns-slides"]) {
+	margin-left: var(--slide-left);
 }
 `);
 
