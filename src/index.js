@@ -1,6 +1,7 @@
 import HTMLElementPlus from './deps/html-element-plus/html-element-plus';
 import html from './deps/html-element-plus/noop';
 import slides from './modules/slides';
+import WindowUtils from './modules/window';
 import * as styles from './modules/styles';
 
 customElements.define(
@@ -17,6 +18,8 @@ customElements.define(
 				loop: true,
 				center: false,
 				lazyload: false,
+				fixedWidth: true,
+				'edge-padding': 0,
 			};
 			return defaults[name];
 		}
@@ -32,6 +35,7 @@ customElements.define(
 				'loop',
 				'center',
 				'lazyload',
+				'fixed-width',
 			];
 		}
 
@@ -39,6 +43,7 @@ customElements.define(
 			super();
 			this.id = this.getAttribute('id') || '';
 			this.className = this.getAttribute('class') || '';
+			this.containerParent = this.parentNode;
 			// const entries = Object.entries(this);
 		}
 
@@ -69,9 +74,12 @@ customElements.define(
 				>
 					<slot name="tns-pagenumbers"></slot>
 				</div>
-				<div ref="tnsMain">
-					<div ref="tnsInner">
-						<div ref="tnsSlider">
+				<div ref="tnsMain" class="tns-ovh">
+					<div ref="tnsInner" class="tns-inner">
+						<div
+							ref="tnsSlider"
+							class="tns-slider tns-carousel tns-subpixel tns-calc tns-horizontal"
+						>
 							<slot name="tns-slides"></slot>
 						</div>
 					</div>
@@ -82,6 +90,10 @@ customElements.define(
 		static get styleHTML() {
 			return html`
 				<style>
+					tiny-slider {
+						--slide-index: 0;
+						--slide-left: calc(var(--slide-index) * 100%);
+					}
 					${styles.autoWidth()}
 					${styles.slider()}
 					${styles.noCalc()}
@@ -100,6 +112,15 @@ customElements.define(
 			this.__styleEl = document.createElement('template');
 			this.__styleEl.innerHTML = this.styleHTML;
 			return this.__styleEl;
+		}
+
+		static get getSlideCountNew() {
+			const value =
+				!this.getAttribute('mode') === 'carousel'
+					? this.slideCount + this.cloneCount
+					: this.slideCount + this.cloneCount * 2;
+			console.log(value);
+			return value;
 		}
 
 		get stylesContent() {
@@ -136,10 +157,22 @@ customElements.define(
 		*/
 
 		appendSlides(id) {
-			const slides = document
-				.getElementById(id)
-				.parentElement.querySelectorAll('#' + id + ' > *');
-			slides.forEach(el => el.setAttribute('slot', 'tns-slides'));
+			const base = document.getElementById(id),
+				slideCountNew = this.getSlideCountNew,
+				slider = this.refs.tnsSlider.querySelector('slot'),
+				slides = base.parentElement.querySelectorAll('#' + id + ' > *');
+
+			// TODO: Figure out why the --slide-left variable is not working
+			slides.forEach((el, index) => {
+				el.style.setProperty('--slide-index', index);
+				// ? slideCountNew is returning undefined
+				el.style.setProperty(
+					'--slide-left',
+					`calc(var(--slide-index) * 100% + ${slideCountNew})`
+				);
+			});
+
+			slider.append(...slides);
 		}
 
 		attributeChangedCallback(attr, oldValue, newValue) {
@@ -147,7 +180,7 @@ customElements.define(
 			this.__attributesMap[
 				attr
 			] = this.contructor.parseAttributeValue.call(this, attr, newValue);
-
+			
 			if (this.__waitingOnAttr.length) {
 				const index = this.__waitingOnAttr.indexOf(attr);
 				if (index !== -1) {
@@ -162,9 +195,70 @@ customElements.define(
 				this.attachShadow({ mode: 'open' });
 				this.shadowRoot.appendChild(this.stylesContent);
 				this.shadowRoot.appendChild(this.templateContent);
-				console.log(this.shadowRoot);
+				const windowOptions = {
+					edgePadding: this.edgePadding,
+					containerParent: this.containerParent,
+				};
+				this.windowUtils = new WindowUtils(windowOptions);
+				this.slideCountNew = this.getSlideCountNew;
+			}
+			if (this.getAttribute('loop') === true) {
+				this.cloneSlides();
 			}
 		}
+
+		cloneSlides() {
+			const fragmentBefore = document.createDocumentFragment(),
+				fragmentAfter = document.createDocumentFragment(),
+				slides = this.refs.tnsInner.querySelectorAll(
+					'[ref="tnsMain"] > *'
+				);
+
+			for (var j = slideCount; j--; ) {
+				var num = j % slideCount;
+			}
+		}
+
+		static get cloneCount() {}
+
+		static get slideCount() {
+			return this.constructor.refs.tnsInner.querySelectorAll(
+				'[refs="tnsMain"] > *'
+			).length;
+		}
+
+		static get itemsMax() {
+			/* copied directly from original tiny slider script
+			// fixedWidth or autoWidth while viewportMax is not available
+			if (autoWidth || (fixedWidth && !viewportMax)) {
+			return slideCount - 1;
+			// most cases
+			} else {
+			var str = fixedWidth ? 'fixedWidth' : 'items',
+				arr = [];
+			
+			if (fixedWidth || options[str] < slideCount) { arr.push(options[str]); }
+			
+			if (responsive) {
+				for (var bp in responsive) {
+				var tem = responsive[bp][str];
+				if (tem && (fixedWidth || tem < slideCount)) { arr.push(tem); }
+				}
+			}
+			
+			if (!arr.length) { arr.push(0); }
+			
+			return Math.ceil(fixedWidth ? viewportMax / Math.min.apply(null, arr) : Math.max.apply(null, arr));
+			}
+			*/
+			return this.slideCount - 1;
+		}
+
+		/*
+		static get currentSlide() {
+
+		}
+		*/
 	}
 );
 
