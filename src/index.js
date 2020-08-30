@@ -2,7 +2,7 @@ import HTMLElementPlus from './deps/html-element-plus/html-element-plus';
 import html from './deps/html-element-plus/noop';
 import slides from './modules/slides';
 import WindowUtils from './modules/window';
-import * as styles from './modules/styles';
+import { coreStyles } from './modules/styles';
 
 customElements.define(
 	'tiny-slider',
@@ -75,14 +75,11 @@ customElements.define(
 					<slot name="tns-pagenumbers"></slot>
 				</div>
 				<div ref="tnsMain" class="tns-ovh">
-					<div ref="tnsInner" class="tns-inner">
-						<div
-							ref="tnsSlider"
-							class="tns-slider tns-carousel tns-subpixel tns-calc tns-horizontal"
-						>
-							<slot name="tns-slides"></slot>
-						</div>
-					</div>
+					<slot
+						ref="tnsInner"
+						class="tns-inner"
+						name="tns-inner"
+					></slot>
 				</div>
 			</div>`;
 		}
@@ -94,15 +91,10 @@ customElements.define(
 						--slide-index: 0;
 						--slide-left: calc(var(--slide-index) * 100%);
 					}
-					${styles.autoWidth()}
-					${styles.slider()}
-					${styles.noCalc()}
-					${styles.lazyLoad()}
-					${styles.horizontal()}
-					${styles.utils()}
-					${styles.fade()}
-					${styles.viewport()}
-					${styles.responsive()}
+					tiny-slider [ref="tnsInner"] {
+						display: block;
+					}
+					${coreStyles()}
 				</style>
 			`;
 		}
@@ -114,15 +106,6 @@ customElements.define(
 			return this.__styleEl;
 		}
 
-		static get getSlideCountNew() {
-			const value =
-				!this.getAttribute('mode') === 'carousel'
-					? this.slideCount + this.cloneCount
-					: this.slideCount + this.cloneCount * 2;
-			console.log(value);
-			return value;
-		}
-
 		get stylesContent() {
 			if (window.ShadyCSS)
 				window.ShadyCSS.prepareTemplate(
@@ -132,25 +115,25 @@ customElements.define(
 			return document.importNode(this.constructor.styles.content, true);
 		}
 
+		/**
+		 * @param {string} id
+		 */
 		static set idAttr(id) {
 			this.refs.tnsOuter.setAttribute('id', id + '-ow');
 			this.refs.tnsMain.setAttribute('id', id + '-mw');
 			this.refs.tnsInner.setAttribute('id', id + '-iw');
-			this.refs.tnsSlider.setAttribute('id', id);
+			// this.refs.tnsSlides.setAttribute('id', id);
 		}
-
-		static set className(classes) {}
 
 		connectedCallback() {
 			// const id = this.getAttribute('id');
 			this.idAttr = this.id;
 			// this.classNames = this.getAttribute('class');
 			// this.slider = this.__getFromShadowRoot(this, 'tnsSlider');
-			window.requestAnimationFrame(() => this.appendSlides(this.id));
 		}
 
 		/* 
-		? Should apply all the attributes from the defaults to the element if the element doesn't have them already
+			? Should apply all the attributes from the defaults to the element if the element doesn't have them already
 			Object.entries(this.__attributesMap).forEach(([key, value]) => {
 				if (!this.hasAttribute(key)) this.setAttribute(key, value);
 			});
@@ -158,21 +141,43 @@ customElements.define(
 
 		appendSlides(id) {
 			const base = document.getElementById(id),
-				slideCountNew = this.getSlideCountNew,
-				slider = this.refs.tnsSlider.querySelector('slot'),
-				slides = base.parentElement.querySelectorAll('#' + id + ' > *');
+				container = base.firstElementChild,
+				containerWidth = this.windowUtils.getClientWidth(container),
+				slides = Array.from(container.children);
+			// slideCountNew = slides.length;
+			// console.log(containerWidth / slides.length);
+			// console.log();
+			container.classList.add(
+				'tns-slides',
+				'tns-carousel',
+				'tns-subpixel',
+				'tns-calc',
+				'tns-horizontal'
+			);
 
-			// TODO: Figure out why the --slide-left variable is not working
+			// TODO: Set auto-width method? Probs unnecessary...
+			const slideWidth = `calc(${containerWidth} / ${slides.length} * 1px)`;
+
 			slides.forEach((el, index) => {
+				console.log(el);
+				el.classList.add('tns-item');
 				el.style.setProperty('--slide-index', index);
-				// ? slideCountNew is returning undefined
-				el.style.setProperty(
-					'--slide-left',
-					`calc(var(--slide-index) * 100% + ${slideCountNew})`
-				);
+				el.style.setProperty('width', slideWidth);
 			});
 
-			slider.append(...slides);
+			// slider.append(...slides);
+		}
+
+		// TODO: Figure out how to slide one slide at a time
+		doContainerTransform(val) {
+			const container = this.refs.tnsInner.assignedElements()[0];
+			if (val == null) {
+				val = this.windowUtils.getClientWidth(container) + 'px';
+			}
+			this.firstElementChild.style.setProperty(
+				'transform',
+				`translate3d(${val}, 0, 0)`
+			);
 		}
 
 		attributeChangedCallback(attr, oldValue, newValue) {
@@ -195,36 +200,34 @@ customElements.define(
 				this.attachShadow({ mode: 'open' });
 				this.shadowRoot.appendChild(this.stylesContent);
 				this.shadowRoot.appendChild(this.templateContent);
+
 				const windowOptions = {
 					edgePadding: this.edgePadding,
 					containerParent: this.containerParent,
 				};
+
 				this.windowUtils = new WindowUtils(windowOptions);
-				this.slideCountNew = this.getSlideCountNew;
-			}
-			if (this.getAttribute('loop') === true) {
-				this.cloneSlides();
+				// this.slideCountNew = this.getSlideCountNew;
+				window.requestAnimationFrame(() => {
+					this.appendSlides(this.id);
+					this.doContainerTransform();
+				});
+
+				if (this.getAttribute('loop') === true) {
+					this.cloneSlides();
+				}
 			}
 		}
 
 		cloneSlides() {
 			const fragmentBefore = document.createDocumentFragment(),
 				fragmentAfter = document.createDocumentFragment(),
-				slides = this.refs.tnsInner.querySelectorAll(
-					'[ref="tnsMain"] > *'
-				);
+				// prettier-ignore
+				slides = this.refs.tnsInner.querySelectorAll('[ref="tnsMain"] > *');
 
 			for (var j = slideCount; j--; ) {
 				var num = j % slideCount;
 			}
-		}
-
-		static get cloneCount() {}
-
-		static get slideCount() {
-			return this.constructor.refs.tnsInner.querySelectorAll(
-				'[refs="tnsMain"] > *'
-			).length;
 		}
 
 		static get itemsMax() {
