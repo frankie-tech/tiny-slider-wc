@@ -40,6 +40,25 @@
 				flex-basis: 100%;
 				text-align: center;
 			}
+			tiny-slider > [slot] > * {
+				margin-left: var(--slide-left);
+			}
+			.tns-slider {
+				-webkit-transition: all 0s;
+				-moz-transition: all 0s;
+				transition: all 0s;
+			}
+
+			.tns-slider > .tns-item {
+				-webkit-box-sizing: border-box;
+				-moz-box-sizing: border-box;
+				box-sizing: border-box;
+			}
+			.tns-horizontal.tns-subpixel > .tns-item {
+				display: inline-block;
+				vertical-align: top;
+				white-space: normal;
+			}
 		</style>
 		<!-- <link rel="stylesheet" href="./src/styles/main.css" /> -->
 	</head>
@@ -47,21 +66,23 @@
 		<main>
 			<div class="tiny-slider-container">
 				<tiny-slider id="base" class="base-tiny-slider extra-class">
-					<div class="item">
-						<div class="number">1</div>
-						item
-					</div>
-					<div class="item">
-						<div class="number">2</div>
-						item
-					</div>
-					<div class="item">
-						<div class="number">3</div>
-						item
-					</div>
-					<div class="item">
-						<div class="number">4</div>
-						item
+					<div slot="tns-inner">
+						<div class="item">
+							<div class="number">1</div>
+							item
+						</div>
+						<div class="item">
+							<div class="number">2</div>
+							item
+						</div>
+						<div class="item">
+							<div class="number">3</div>
+							item
+						</div>
+						<div class="item">
+							<div class="number">4</div>
+							item
+						</div>
 					</div>
 				</tiny-slider>
 			</div>
