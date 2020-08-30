@@ -14,7 +14,7 @@ export default class WindowUtil {
 	}
 
 	// equal to https://github.com/ganlanyuan/tiny-slider/blob/master/src/tiny-slider.js#L541-L549
-	static set setClientWidth(el) {
+	getClientWidth(el) {
 		if (el == null) return;
 		const div = document.createElement('div');
 		el.appendChild(div);
@@ -24,9 +24,9 @@ export default class WindowUtil {
 		div.remove();
 
 		if (width) {
-			this.clientWidth = width;
+			return width;
 		} else {
-			this.setClientWidth = el.parentNode;
+			this.getClientWidth(el.parentNode);
 		}
 		// this.clientWidth = width || this.setClientWidth(el.parentNode);
 	}
